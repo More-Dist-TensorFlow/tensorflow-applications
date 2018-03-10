@@ -32,6 +32,7 @@ def subprocess_run(*popenargs, input=None, check=False, **kwargs):
 old_args = sys.argv
 
 tf_config_json = os.environ.get("TF_CONFIG", "{}")
+print('DEBUG: env TF_CONFIG is', tf_config_json)
 tf_config = json.loads(tf_config_json)
 
 worker = tf_config.get("worker", {})
