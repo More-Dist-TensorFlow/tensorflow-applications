@@ -49,11 +49,14 @@ ps = cluster.get("ps", {})
 arg_ = '--ps_hosts=' + ','.join(ps)
 old_args.append(arg_)
 
-task = tf_config.get("task")
-arg_ = '--job_name=' + task['type']
-old_args.append(arg_)
-arg_ = '--task_index=' + str(task['index'])
-old_args.append(arg_)
+try:
+    task = tf_config.get("task")
+    arg_ = '--job_name=' + task['type']
+    old_args.append(arg_)
+    arg_ = '--task_index=' + str(task['index'])
+    old_args.append(arg_)
+except TypeError as err:
+    print('Warning, typerr {0}'.format(err))
 
 old_args[0] = 'worker.py'
 old_args = ['python'] + old_args
@@ -63,5 +66,6 @@ try:
     completed = subprocess.run(old_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     exit(completed.returncode)
 except: # Lower than python3.5
-    completed = subprocess_run(old_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    completed, stdout, stderr = subprocess_run(old_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    print('stdout:', stdout, '\nstderr:', stderr)
     exit(completed[0])
