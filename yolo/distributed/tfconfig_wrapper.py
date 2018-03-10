@@ -45,7 +45,7 @@ old_args.append(arg_)
 task = tf_config.get("task")
 arg_ = '--job_name=' + task['type']
 old_args.append(arg_)
-arg_ = '--task_index=' + task['index']
+arg_ = '--task_index=' + str(task['index'])
 old_args.append(arg_)
 
 old_args[0] = 'worker.py'

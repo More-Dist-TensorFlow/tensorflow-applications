@@ -1,0 +1,4 @@
+I0310 17:02:15.705576    7513 server.go:54] EnvKubeflowNamespace not set, use default namespace
+I0310 17:02:15.705655    7513 server.go:59] [Version: 0.3.0+git Git SHA: Not provided. Go Version: go1.8.3 Go OS/Arch: linux/amd64]
+I0310 17:02:15.713115    7513 server.go:133] Loading controller config from control.yml.
+F0310 17:02:15.713137    7513 server.go:136] Could not read file: control.yml. Error: open control.yml: no such file or directory
