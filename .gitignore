@@ -1,3 +1,4 @@
 *.pyc
 yolo/single/models/pretrain/yolo_tiny.ckpt
 yolo/distributed/models/pretrain/yolo_tiny.ckpt
+nohup.out
