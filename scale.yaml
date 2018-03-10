@@ -1,0 +1,38 @@
+apiVersion: "kubeflow.org/v1alpha1"
+kind: "TFJob"
+metadata:
+  name: "scale"
+spec:
+  replicaSpecs:
+    - replicas: 1
+      tfReplicaType: MASTER
+      template:
+        spec:
+          containers:
+            - image: recolic/tfapp-scale:latest
+              name: tensorflow
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 1200Mi
+          restartPolicy: OnFailure
+    - replicas: 1
+      tfReplicaType: WORKER
+      template:
+        spec:
+          containers:
+            - image: recolic/tfapp-scale:latest
+              name: tensorflow
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 1200Mi
+          restartPolicy: OnFailure
+    - replicas: 1
+      tfReplicaType: PS
+      template:
+        spec:
+          containers:
+            - image: recolic/tfapp-scale:latest
+              name: tensorflow
+          restartPolicy: OnFailure

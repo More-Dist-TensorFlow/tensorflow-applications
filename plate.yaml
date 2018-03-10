@@ -1,7 +1,7 @@
 apiVersion: "kubeflow.org/v1alpha1"
 kind: "TFJob"
 metadata:
-  name: "mnist"
+  name: "plate"
 spec:
   replicaSpecs:
     - replicas: 1
@@ -9,7 +9,7 @@ spec:
       template:
         spec:
           containers:
-            - image: node1.recolic.top:9514/mnist-tmp:latest
+            - image: recolic/tfapp-plate:latest
               name: tensorflow
               resources:
                 requests:
@@ -21,7 +21,7 @@ spec:
       template:
         spec:
           containers:
-            - image: node1.recolic.top:9514/mnist-tmp:latest
+            - image: recolic/tfapp-plate:latest
               name: tensorflow
               resources:
                 requests:
@@ -33,6 +33,6 @@ spec:
       template:
         spec:
           containers:
-            - image: node1.recolic.top:9514/mnist-tmp:latest
+            - image: recolic/tfapp-plate:latest
               name: tensorflow
           restartPolicy: OnFailure
