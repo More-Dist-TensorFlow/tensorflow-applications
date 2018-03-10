@@ -28,6 +28,17 @@ def subprocess_run(*popenargs, input=None, check=False, **kwargs):
             retcode, process.args, output=stdout, stderr=stderr)
     return retcode, stdout, stderr
 
+import sys
+import os
+
+def whereami():
+    mypos = sys.argv[0]
+    if mypos[0] == '/' or mypos[0] == '~':
+        return os.path.dirname(mypos)
+    else:
+        mypos = './' + mypos
+        return os.path.dirname(os.path.realpath(mypos))
+
 ########################
 old_args = sys.argv
 
@@ -58,7 +69,7 @@ try:
 except TypeError as err:
     print('Warning, typerr {0}'.format(err))
 
-old_args[0] = 'worker.py'
+old_args[0] = whereami() + 'worker.py'
 old_args = ['python'] + old_args
 print('Running:', old_args)
 
@@ -68,4 +79,4 @@ try:
 except: # Lower than python3.5
     completed, stdout, stderr = subprocess_run(old_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     print('stdout:', stdout, '\nstderr:', stderr)
-    exit(completed[0])
+    exit(completed)
