@@ -35,11 +35,17 @@ tf_config_json = os.environ.get("TF_CONFIG", "{}")
 print('DEBUG: env TF_CONFIG is', tf_config_json)
 tf_config = json.loads(tf_config_json)
 
-worker = tf_config.get("worker", {})
+cluster = tf_config.get("cluster", {})
+
+master = cluster.get("master", {})
+arg_ = '--master_hosts=' + ','.join(master)
+old_args.append(arg_)
+
+worker = cluster.get("worker", {})
 arg_ = '--worker_hosts=' + ','.join(worker)
 old_args.append(arg_)
 
-ps = tf_config.get("ps", {})
+ps = cluster.get("ps", {})
 arg_ = '--ps_hosts=' + ','.join(ps)
 old_args.append(arg_)
 
