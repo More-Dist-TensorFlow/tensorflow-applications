@@ -69,7 +69,7 @@ try:
 except TypeError as err:
     print('Warning, typerr {0}'.format(err))
 
-old_args[0] = whereami() + 'worker.py'
+old_args[0] = whereami() + '/worker.py'
 old_args = ['python'] + old_args
 print('Running:', old_args)
 
