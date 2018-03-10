@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+# Usage: Set env "TF_CONFIG" correctly, and I'll get worker_hosts,ps_hosts,job_name,task_index from the env var, 
+#        and call ./worker.py with arg formatted like: --ps_hosts=127.0.0.1:8887 \
+#           --worker_hosts=127.0.0.1:8888,127.0.0.1:8889 \
+#           --job_name=worker \
+#           --task_index=0
 import os, json
 import sys
 import logging
