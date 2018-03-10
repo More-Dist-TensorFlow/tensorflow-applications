@@ -62,7 +62,8 @@ old_args.append(arg_)
 
 try:
     task = tf_config.get("task")
-    arg_ = '--job_name=' + task['type']
+    task_type = task['type'] if task['type'] != 'master' else 'worker'
+    arg_ = '--job_name=' + task_type
     old_args.append(arg_)
     arg_ = '--task_index=' + str(task['index'])
     old_args.append(arg_)
