@@ -52,11 +52,11 @@ master = cluster.get("master", {})
 arg_ = '--master_hosts=' + ','.join(master)
 old_args.append(arg_)
 
-worker = cluster.get("worker", {})
+worker = tf_config.get("worker", {})
 arg_ = '--worker_hosts=' + ','.join(worker)
 old_args.append(arg_)
 
-ps = cluster.get("ps", {})
+ps = tf_config.get("ps", {})
 arg_ = '--ps_hosts=' + ','.join(ps)
 old_args.append(arg_)
 
