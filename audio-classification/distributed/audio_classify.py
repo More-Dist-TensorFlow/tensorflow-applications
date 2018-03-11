@@ -1,12 +1,12 @@
-import librosa
+#import librosa
 import numpy as np
 np.set_printoptions(threshold=np.nan)
 
 import tensorflow as tf
 import sys
 
-sys.path.append("../audio-data-extraction")
-import parse_audio as parse
+#sys.path.append("../audio-data-extraction")
+#import parse_audio as parse
 
 # sound classification
 sound_classification = {
@@ -32,37 +32,51 @@ n_hidden_units_three = 100
 learning_rate = 0.1
 sd = 1 / np.sqrt(n_dim)
 
+# Tf's Variables
+X = tf.placeholder(tf.float32, [None, n_dim])
+Y = tf.placeholder(tf.float32, [None, n_classes])
 
-with tf.device("/job:ps/task:0"):
-    X = tf.placeholder(tf.float32, [None, n_dim])
-    Y = tf.placeholder(tf.float32, [None, n_classes])
+W_1 = tf.Variable(tf.random_normal([n_dim, n_hidden_units_one], mean=0, stddev=sd), name="w1")
+b_1 = tf.Variable(tf.random_normal([n_hidden_units_one], mean=0, stddev=sd), name="b1")
+h_1 = tf.nn.sigmoid(tf.matmul(X, W_1) + b_1)
 
-    W_1 = tf.Variable(tf.random_normal([n_dim, n_hidden_units_one], mean=0, stddev=sd), name="w1")
-    b_1 = tf.Variable(tf.random_normal([n_hidden_units_one], mean=0, stddev=sd), name="b1")
-    h_1 = tf.nn.sigmoid(tf.matmul(X, W_1) + b_1)
+W_2 = tf.Variable(tf.random_normal([n_hidden_units_one, n_hidden_units_two], mean=0, stddev=sd), name="w2")
+b_2 = tf.Variable(tf.random_normal([n_hidden_units_two], mean=0, stddev=sd), name="b2")
+h_2 = tf.nn.tanh(tf.matmul(h_1, W_2) + b_2)
 
-    W_2 = tf.Variable(tf.random_normal([n_hidden_units_one, n_hidden_units_two], mean=0, stddev=sd), name="w2")
-    b_2 = tf.Variable(tf.random_normal([n_hidden_units_two], mean=0, stddev=sd), name="b2")
-    h_2 = tf.nn.tanh(tf.matmul(h_1, W_2) + b_2)
+W_3 = tf.Variable(tf.random_normal([n_hidden_units_two, n_hidden_units_three], mean=0, stddev=sd), name="w3")
+b_3 = tf.Variable(tf.random_normal([n_hidden_units_three], mean=0, stddev=sd), name="b3")
+h_3 = tf.nn.sigmoid(tf.matmul(h_2, W_3) + b_3)
 
-    W_3 = tf.Variable(tf.random_normal([n_hidden_units_two, n_hidden_units_three], mean=0, stddev=sd), name="w3")
-    b_3 = tf.Variable(tf.random_normal([n_hidden_units_three], mean=0, stddev=sd), name="b3")
-    h_3 = tf.nn.sigmoid(tf.matmul(h_2, W_3) + b_3)
-
-    W = tf.Variable(tf.random_normal([n_hidden_units_three, n_classes], mean=0, stddev=sd), name="w")
-    b = tf.Variable(tf.random_normal([n_classes], mean = 0, stddev=sd), name="b")
+W = tf.Variable(tf.random_normal([n_hidden_units_three, n_classes], mean=0, stddev=sd), name="w")
+b = tf.Variable(tf.random_normal([n_classes], mean = 0, stddev=sd), name="b")
 
 # The proposed model
-with tf.device("/job:worker/task:0"):
-    y_ = tf.nn.softmax(tf.matmul(h_3, W) + b)
-
+y_ = tf.nn.softmax(tf.matmul(h_3, W) + b)
 
 saver = tf.train.Saver()
 model_path = '../model-ckpt/pretrain.ckpt'
 
-with tf.Session("grpc://127.0.0.1:8888") as sess:
+with tf.Session() as sess:
     load_path = saver.restore(sess, model_path)
-    X_input, y_input = parse.parse_audio_files(sys.argv[1])
-
-    answer = sess.run(tf.argmax(y_, 1), feed_dict={X: X_input})
-    print "Sound Classification: " + sound_classification[answer[0]]
+    #X_input, y_input = parse.parse_audio_files(sys.argv[1])
+    builder = tf.saved_model.builder.SavedModelBuilder("./export/")
+    predition_inputs=tf.saved_model.utils.build_tensor_info(X)
+    predition_outputs=tf.saved_model.utils.build_tensor_info(y_)
+    prediction_signature = (
+        tf.saved_model.signature_def_utils.build_signature_def(
+            inputs={tf.saved_model.signature_constants.PREDICT_INPUTS: predition_inputs},
+            outputs={tf.saved_model.signature_constants.PREDICT_OUTPUTS: predition_outputs},
+            method_name=tf.saved_model.signature_constants.PREDICT_METHOD_NAME))
+    legacy_init_op = tf.group(tf.initialize_all_tables(), name='legacy_init_op')
+    builder.add_meta_graph_and_variables(
+        sess, [tf.saved_model.tag_constants.SERVING],
+        signature_def_map={
+                    
+            tf.saved_model.signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY:
+                prediction_signature,
+        },
+        legacy_init_op=legacy_init_op)
+    builder.save()
+    #answer = sess.run(tf.argmax(y_, 1), feed_dict={X: X_input})
+    #print "Sound Classification: " + sound_classification[answer[0]]
